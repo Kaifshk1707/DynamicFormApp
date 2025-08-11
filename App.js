@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { Alert, ScrollView, StyleSheet } from 'react-native';
 import Constants from 'expo-constants';
 
 import FormData from './src/components/FormData';
@@ -19,6 +19,7 @@ export default function App() {
   const handleSubmit = async (userData) => {
       const result = await mainAPI.post('/users', userData);
       setUserDetails(result.data);
+      Alert.alert('Success', 'User details saved successfully!');
       console.log('User saved:', result.data);
   };
 

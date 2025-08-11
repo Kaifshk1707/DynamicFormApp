@@ -40,7 +40,7 @@ const FormData = ({ userDetails }) => {
             {userDetails.title}
           </Text>
           <Text style={{ color: "#a8b6cc", fontSize: 14, fontStyle: "italic" }}>
-            {userDetails.isMember && "Member of Code Club" }
+            {userDetails.member && "Member of Code Club" }
             
           </Text>
         </View>
@@ -53,9 +53,9 @@ const FormData = ({ userDetails }) => {
 
       {/* Links Section */}
       <View style={{ gap: 8 }}>
-        <ExternalLinks links={userDetails.webSite} icon="globe" />
+        <ExternalLinks links={userDetails.website} icon="globe" />
         <ExternalLinks links={userDetails.linkedin} icon="linkedin" />
-        <ExternalLinks links={userDetails.webSite} icon="github" />
+        <ExternalLinks links={userDetails.github} icon="github" />
       </View>
     </View>
   );

@@ -1,20 +1,38 @@
-import { Alert, Image, Pressable, StyleSheet, Switch, Text, View } from "react-native";
+import {
+  Alert,
+  Pressable,
+  StyleSheet,
+  Switch,
+  Text,
+  View,
+} from "react-native";
 import { useState } from "react";
 import AppTextInput from "./AppTextInput";
 import ImageView from "./ImageView";
 import * as ImagePicker from "expo-image-picker";
+import { useForm, Controller } from "react-hook-form";
 
-const UserForm = ({submit}) => {
-  const [userName, setUserName] = useState("");
-  const [title, setTitle] = useState("");
-  const [bio, setBio] = useState("");
-  const [linkedin, setLinkedin] = useState("");
-  const [github, setGithub] = useState("");
-  const [webSite, setWebSite] = useState("");
+const UserForm = ({ submit }) => {
   const [image, setImage] = useState(null);
-  const [isEnabled, setIsEnabled] = useState(false);
-  const [userNameError, setUserNameError] = useState("");
-  const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+
+  const onSubmit = (data) => submit(data);
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      userName: "",
+      member: false,
+      title: "",
+      bio: "",
+      linkedin: "",
+      github: "",
+      website: "",
+      image: "./../assets/images/empty.jpeg",
+    },
+  });
 
   const pickImageGallery = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -26,37 +44,8 @@ const UserForm = ({submit}) => {
     if (!result.canceled) {
       setImage(result.assets[0].uri);
       console.log(result.assets[0].uri);
-      
     } else {
       Alert.alert("You did not select any image");
-    }
-  };
-
-  const handleUserName =()=>{
-    if (userName.length < 3 ) {
-      setUserNameError("Username should be at least 3 characters");
-    } else if (userName.length > 20 ){
-      setUserNameError("Username should be at least 20 characters");      
-    }else{
-      setUserNameError(null);
-    }
-  }
-
-  const handleSubmit = () => {
-    handleUserName();
-    if (!userNameError) {
-      
-      const data = {
-        userName,
-        title,
-        bio,
-        isMember: isEnabled,
-        linkedin,
-        github,
-        webSite,
-        image,
-      };
-      submit(data);
     }
   };
 
@@ -65,85 +54,180 @@ const UserForm = ({submit}) => {
       <Text style={styles.text}>Enter Your Details</Text>
 
       <View style={{ alignItems: "center" }}>
-        {image ? (
-          <ImageView URI={image} />
-        ) : (
-          <Image
-            source={require("./../assets/images/empty.jpeg")}
-            style={{
-              height: 80,
-              width: 80,
-              borderRadius: 40,
-              borderWidth: 3,
-              borderColor: "#249781",
-              resizeMode: "cover",
-            }}
+        <ImageView URI={image || "./../assets/images/empty.jpeg"} />
+      </View>
+      
+      <Controller
+        control={control}
+        rules={{
+          required: true,
+          minLength: 3,
+          maxLength: 20,
+        }}
+        name="userName"
+        render={({ field: { onChange, onBlur, value } }) => (
+          <AppTextInput
+            InputLabel="Username"
+            placeholder="Enter your name"
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
           />
         )}
-      </View>
-
-      <AppTextInput
-        InputLabel={"Username"}
-        placeholder={"Enter your name"}
-        value={userName}
-        onChangeText={setUserName}
       />
-      {userNameError && <Text style={{ color: "red",fontSize:16 }}>{userNameError}</Text>}
+      {errors.userName && (
+        <Text style={{ color: "red", fontSize: 16 }}>
+          Username must be between 3 and 20 characters
+        </Text>
+      )}
 
-      <AppTextInput
-        InputLabel={"Title"}
-        placeholder={"Enter your title"}
-        value={title}
-        onChangeText={setTitle}
+      <Controller
+        control={control}
+        rules={{
+          required: true,
+          minLength: 3,
+          maxLength: 20,
+        }}
+        name="title"
+        render={({ field: {onChange, onBlur, value} }) => (
+          <AppTextInput
+            InputLabel="title"
+            placeholder="Enter your title"
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+          />
+        )}
       />
+      {errors.title && (
+        <Text style={{ color: "red", fontSize: 16 }}>
+          Title must be between 3 and 20 characters
+        </Text>
+      )}
 
-      <View style={{flexDirection:"row",alignItems:"center"}}>
-        <Switch
-          trackColor={{false: '#9caec7', true: '#9caec7'}}
-          thumbColor={isEnabled ? '#249781' : '#f4f3f4'}
-          onValueChange={toggleSwitch}
-          value={isEnabled}
+      <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <Controller
+          control={control}
+          name="member"
+          render={({ field: { onChange, value } }) => (
+            <Switch
+              trackColor={{ false: "#1d68d1ff", true: "#9caec7" }}
+              thumbColor={value ? "#249781" : "#f4f3f4"}
+              onValueChange={onChange}
+              value={value}
+            />
+          )}
         />
-        <Text  style={{color:"#9caec7",fontSize:16}}>
+        <Text style={{ color: "#9caec7", fontSize: 16 }}>
           Are you a member of Code Club
         </Text>
       </View>
 
-      <AppTextInput
-        InputLabel={"Bio"}
-        placeholder={"Enter your bio"}
-        multilines
-        numberOfLines={4}
-        value={bio}
-        onChangeText={setBio}
+      <Controller
+        control={control}
+        rules={{
+          required: true,
+          minLength: 8,
+          maxLength: 100,
+        }}
+        name="bio"
+        render={({ field: {onChange, onBlur, value} }) => (
+          <AppTextInput
+            InputLabel={"bio"}
+            placeholder={"Enter your bio"}
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+            multilines
+            numberOfLines={4}
+          />
+        )}
       />
+      {errors.bio && (
+        <Text style={{ color: "red", fontSize: 16 }}>
+          Bio must be between 8 and 20 characters
+        </Text>
+      )}
 
-      <AppTextInput
-        InputLabel={"Linkedin"}
-        placeholder={"Enter your linkedin"}
-        value={linkedin}
-        onChangeText={setLinkedin}
+      <Controller
+        control={control}
+        rules={{
+          required: true,
+          minLength: 10,
+          maxLength: 20,
+        }}
+        name="linkedin"
+        render={({ field: {onChange, onBlur, value} }) => (
+          <AppTextInput
+            InputLabel={"linkedin"}
+            placeholder={"Enter your linkedin"}
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+          />
+        )}
       />
+      {errors.linkedin && (
+        <Text style={{ color: "red", fontSize: 16 }}>
+          Linkedin must be required
+        </Text>
+      )}
 
-      <AppTextInput
-        InputLabel={"GitHub"}
-        placeholder={"Enter your gitHub"}
-        value={github}
-        onChangeText={setGithub}
-      />
+      <Controller
+        control={control}
+        rules={{
+          required: true,
+          minLength: 10,
+          maxLength: 20,
 
-      <AppTextInput
-        InputLabel={"WebSite"}
-        placeholder={"Enter your webSite"}
-        value={webSite}
-        onChangeText={setWebSite}
+        }}
+        name="github"
+        render={({ field: {onChange, onBlur, value} }) => (
+          <AppTextInput
+            InputLabel={"github"}
+            placeholder={"Enter your github"}
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+          />
+        )}
       />
+      {errors.github && (
+        <Text style={{ color: "red", fontSize: 16 }}>
+          GitHub must be required
+        </Text>
+      )}
+
+      <Controller
+        control={control}
+        rules={{
+          required: true,
+          minLength: 10,
+          maxLength: 20,
+         
+        }}
+        name="website"
+        render={({ field:{ onChange, onBlur, value} }) => (
+          <AppTextInput
+            InputLabel={"website"}
+            placeholder={"Enter your website"}
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+          />
+        )}
+      />
+       {errors.website && (
+        <Text style={{ color: "red", fontSize: 16 }}>
+          WebSite must be required
+        </Text>
+      )}
 
       <Pressable style={styles.imageButton} onPress={pickImageGallery}>
         <Text style={styles.buttonText}>Upload Image</Text>
       </Pressable>
 
-      <Pressable style={styles.button} onPress={handleSubmit}>
+      <Pressable style={styles.button} onPress={handleSubmit(onSubmit)}>
         <Text style={styles.buttonText}>Submit</Text>
       </Pressable>
     </View>
